@@ -1,0 +1,224 @@
+{% extends 'wrapper.html' %}
+{% block title %}Ombor{% endblock title %}
+{% block content %}
+<style>
+  table{
+    overflow: auto;
+  }
+  tr:hover {
+    background-color: rgb(194, 190, 190);
+  }
+</style>
+<div class="pagetitle">
+    <h1>Ombor</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Mahsulotlar</li>
+      </ol>
+      <div>
+        <form method="POST" class="d-felx " style="">
+          {% csrf_token %}
+          <input name="from" type="date" id="from" style="border-radius: 3px;margin-top:10px;outline:none;border:none;padding:10px 10px;">
+          <label for="from">Dan - Gacha</label>
+          <input name="till" type="date" id="from" style="border-radius: 3px;margin-top:10px;outline:none;border:none;padding:10px 10px;">
+          <button class="btn btn-primary" name="filtr" style="margin-left: 10px;">filtrlash</button>
+        </form>
+      </div>
+    </nav>
+  </div><!-- End Page Title -->
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="title"><h5 class="card-title">Mahsulotlar</h5></div>
+    <div>
+      <form method="POST">
+        {% csrf_token %}
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="bi bi-plus-circle"></i></button>
+        <button type="submit" class="btn btn-warning" name="excel">.xlsx</button>
+        <button type="submit" class="btn btn-info" name="pdf">.pdf</button>
+      </form>
+    </div>
+  </div>
+    <div class="row" style="overflow-x: auto;"> 
+           
+            <table class="table" >
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Nomi</th>
+                  <th scope="col">Miqdori</th>
+                  <th scope="col">Qo'shilgan sana</th>
+                  <th scope="col">Sof foydasi</th>
+                  <th scope="col">Tan narxi</th>
+                  <th scope="col">Ko'rsatgichi</th>
+                  <th scope="col">Qo'shimcha funksiyalar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if products %}
+                {% for i in products %}
+                <tr>
+                  <th scope="row">{{ i.id }}</th>
+                  <td>{{ i.name }}</td>
+                  <td>{{ i.amount }}{{ i.measurement_unit}}</td>
+                  <td>{{ i.date_added }}</td>
+                  <td>{{ i.income }}</td>
+                  <td>{{ i.body_price }}</td>
+                  <td>
+                    {% if i.calculate_percentage > 50 %}
+                      <div class="progress d-flex justify-content-start align-items-center">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ i.calculate_percentage }}%; color:white;" aria-valuenow="{{ i.calculate_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ i.calculate_percentage }}%</div>
+                      </div>
+                      {% else %}
+                      <div class="progress d-flex justify-content-start align-items-center">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ i.calculate_percentage }}%; color:black;" aria-valuenow="{{ i.calculate_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ i.calculate_percentage }}%</div>
+                      </div>
+                      {% endif %}
+                  </td>
+                  <td>
+                    <div>
+                      <form method="POST" class="d-flex justify-content-start align-items-center gap-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="product" value="{{ i.id }}">
+                        <button type="button" class="btn btn-success edit-btn" data-id="{{ i.id }}" data-bs-toggle="modal"  data-bs-target="#editProduct"> <i class="bi bi-pen"></i></button>
+                        <button type="submit" class="btn btn-danger" name="delete"><i class="bi bi-trash"></i></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr style="color: gray;font-size:20px;">
+                  Mahsulot mavjud emas!!!
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+    </div>
+    <!-- Button trigger modal -->
+
+   <!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Mahsulot Qo'shish</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="formGroupExampleInput" class="form-label">Nomi:</label>
+            <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Nomi" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Miqdori:</label>
+            <input type="number" class="form-control" id="formGroupExampleInput2" placeholder="Miqdori" name="amount" required>
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">O'lchov birligi</label>
+            <input type="text" class="form-control" id="formGroupExampleInput2" placeholder="O'lchov birligi" name="measurment_unit" required>
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Sof foyda</label>
+            <input type="number" class="form-control" id="formGroupExampleInput2" placeholder="Sof foyda" name="income" required>
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Tan narxi</label>
+            <input type="number" class="form-control" id="formGroupExampleInput2" placeholder="Tan narxi" name="body_price" required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+            <button type="submit" class="btn btn-primary" name="add_product">Saqlash</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="editProduct" tabindex="-1" aria-labelledby="editProductModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Mahsulot Qo'shish</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" value="product_id" name="product" id="product_id">
+          <div class="mb-3">
+            <label for="formGroupExampleInput" class="form-label">Nomi:</label>
+            <input type="text" class="form-control" placeholder="Nomi" name="name" required  id="name">
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Miqdori:</label>
+            <input type="number" class="form-control"  placeholder="Miqdori" name="amount" required  id="amount">
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">O'lchov birligi</label>
+            <input type="text" class="form-control"  placeholder="O'lchov birligi" name="measurement_unit"  required id="measurement_unit">
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Sof foyda</label>
+            <input type="number" class="form-control"  placeholder="Sof foyda" name="income"  required id="income">
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Tan narxi</label>
+            <input type="number" class="form-control"  placeholder="Tan narxi" name="body_price"  required id="body_price">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+            <button type="submit" class="btn btn-primary" name="save">Saqlash</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $(".edit-btn").click(function() {
+
+        var productId = $(this).data("id");
+        var csrfToken = "{{ csrf_token }}";
+        
+        $.ajax({
+            url: '/ombor/', 
+            type: 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken 
+            },
+            data: {
+                'action': 'edit',
+                'product': productId
+            },
+            success: function(response) {
+              console.log(response.product)
+               
+                if (response.success) {
+                   
+                    $('#product_id').val(response.product.id);
+                    $('#name').val(response.product.name);
+                    $('#amount').val(response.product.amount);
+                    $('#measurement_unit').val(response.product.measurement_unit);
+                    $('#income').val(response.product.income);
+                    $('#body_price').val(response.product.body_price);
+                   
+                    $('#product-modal').modal('show');
+                   
+                } else {
+                   
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+               
+                console.log("ishlamadi")
+            }
+        });
+    });
+});
+</script>
+{% endblock content %}
