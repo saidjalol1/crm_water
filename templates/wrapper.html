@@ -56,9 +56,10 @@
     </div><!-- End Logo -->
 
     <div class="search-bar">
-      <form class="search-form d-flex align-items-center" method="POST" action="#">
+      <form class="search-form d-flex align-items-center" method="POST">
+        {% csrf_token %}
         <input type="text" name="query" placeholder="Qidiruv" title="Enter search keyword">
-        <button type="submit" title="Search"><i class="bi bi-search"></i></button>
+        <button type="submit" title="Search" name="search"><i class="bi bi-search"></i></button>
       </form>
     </div><!-- End Search Bar -->
 
@@ -71,7 +72,7 @@
           </a>
         </li><!-- End Search Icon-->
 
-        <li class="nav-item dropdown">
+        {% comment %} <li class="nav-item dropdown">
 
           <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-bell"></i>
@@ -210,7 +211,7 @@
 
           </ul><!-- End Messages Dropdown Items -->
 
-        </li><!-- End Messages Nav -->
+        </li><!-- End Messages Nav --> {% endcomment %}
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
@@ -278,13 +279,13 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link " href="index.html">
+        <a class="nav-link " href="{% url 'expances_app:expances_view' %}">
           <i class="bi bi-cash-coin"></i>
-          <span>Kirim Chiqim</span>
+          <span>Sotuv bo'limi</span>
         </a>
       </li>
       <!-- End Dashboard Nav -->
-      <li class="nav-heading">Qo'shimcha Funksiyalar</li><!-- End Profile Page Nav -->
+      <li class="nav-heading">Qo'shimcha Kategoriyalar</li><!-- End Profile Page Nav -->
       <li class="nav-item">
         <a class="nav-link collapsed"  href="http://t.me/Saidjalol10">
           <i class="bi bi-question-circle"></i>
@@ -305,22 +306,11 @@
 
   <main id="main" class="main">
         {% block content %} {% endblock content %}
+
+  
   </main><!-- End #main -->
 
-  <!-- ======= Footer ======= -->
-  <footer id="footer" class="footer">
-    <div class="copyright">
-      &copy; Copyright <strong><span>ZamZam</span></strong>. All Rights Reserved
-    </div>
-    <div class="credits">
-      <!-- All the links in the footer should remain intact. -->
-      <!-- You can delete the links only if you purchased the pro version. -->
-      <!-- Licensing information: https://bootstrapmade.com/license/ -->
-      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      Made by <a style="font-weight:900;color:blue;" href="https://t.me/Saidjalol10">USG Group</a>
-    </div>
-  </footer><!-- End Footer -->
-
+  
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
@@ -339,3 +329,4 @@
 </body>
 
 </html>
+

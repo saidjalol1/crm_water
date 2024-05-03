@@ -31,7 +31,7 @@
     <div>
       <form method="POST">
         {% csrf_token %}
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="bi bi-plus-circle"></i></button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Mahsulot qo'shish</button>
         <button type="submit" class="btn btn-warning" name="excel">.xlsx</button>
         <button type="submit" class="btn btn-info" name="pdf">.pdf</button>
       </form>
@@ -79,19 +79,67 @@
                         {% csrf_token %}
                         <input type="hidden" name="product" value="{{ i.id }}">
                         <button type="button" class="btn btn-success edit-btn" data-id="{{ i.id }}" data-bs-toggle="modal"  data-bs-target="#editProduct"> <i class="bi bi-pen"></i></button>
-                        <button type="submit" class="btn btn-danger" name="delete"><i class="bi bi-trash"></i></button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"  data-bs-target="#DeleteModal"><i class="bi bi-trash"></i></button>
                       </form>
                     </div>
                   </td>
                 </tr>
+                <div class="modal fade" id="DeleteModal" tabindex="-1" aria-labelledby="editProductModal" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">O'chirish</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="product" value="{{ i.id }}">
+                              <div style="color: gray;text-align:center;font-size: 20px;">Haqiqattan Ham O'chirishni Xoylaysimi ?</div>
+                              <div style="text-align: center; margin-top:10px;"><button class="btn btn-primary" type="submit" name="delete">Tasdiqlash</button></div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {% endfor %}
                 {% else %}
-                <tr style="color: gray;font-size:20px;">
-                  Mahsulot mavjud emas!!!
+                <tr>
+                  <div style="color: gray;font-size:20px;text-align:center">
+                    Ma'lumot mavjud emas!!!
+                  </div>
                 </tr>
                 {% endif %}
               </tbody>
             </table>
+            <nav>
+              <ul class="pagination justify-content-center">
+                  {% if products.has_previous %}
+                      <li class="page-item">
+                          <a class="page-link" href="?page={{ products.previous_page_number }}">Oldingi</a>
+                      </li>
+                  {% else %}
+                      <li class="page-item disabled">
+                          <span class="page-link">Oldingi</span>
+                      </li>
+                  {% endif %}
+                  {% for num in products.paginator.page_range %}
+                      <li class="page-item {% if num == products.number %}active{% endif %}">
+                          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                      </li>
+                  {% endfor %}
+                  {% if products.has_next %}
+                      <li class="page-item">
+                          <a class="page-link" href="?page={{ products.next_page_number }}">Keyingi</a>
+                      </li>
+                  {% else %}
+                      <li class="page-item disabled">
+                          <span class="page-link">Keyingi</span>
+                      </li>
+                  {% endif %}
+              </ul>
+          </nav>
+          
     </div>
     <!-- Button trigger modal -->
 

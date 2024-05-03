@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-
+from expances.models import Expances
 from django.views import View
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -16,16 +16,18 @@ class MainView(View):
     
     def get_context_data(self, *args, **kwargs):
         context = {}
+        context["debt_sales"] = Expances.objects.filter(payment_type="nasiya")
         return context
     
     
     def get(self, request):
-        context = {}
+        context = self.get_context_data()
+        print(context)
         return render(request, self.template_name, context)
     
     
     def post(self, request):
-        context = {}
+        context = self.get_context_data()
         return render(request, self.template_name, context)
 
 

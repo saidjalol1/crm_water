@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     # My Apps
     'main.apps.MainConfig',
     'storage.apps.StorageConfig',
+    'expances.apps.ExpancesConfig',
     
     'django.contrib.admin',
     'django.contrib.auth',

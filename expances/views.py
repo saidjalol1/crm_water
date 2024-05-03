@@ -1,7 +1,12 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.views import View
-from .models import Product
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from openpyxl import Workbook
+
 
 # Decorators
 from django.contrib import messages
@@ -9,30 +14,27 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from openpyxl import Workbook
+from .models import Expances
 
 def export_products_to_excel(products):
     # Create a new workbook
     wb = Workbook()
     ws = wb.active
-    ws.title = "Products"
+    ws.title = "Kirimlar"
 
     # Define headers
-    headers = ["Nomi", "Miqdori","O'lchov birligi", "Sof Foyda", "Tan Narxi", "Sanasi"]
+    headers = ["Ismi", "Summasi", "Muddati", "To'lov turi", "Telefon Raqamlari"]
     ws.append(headers)
 
     # Write product data to the worksheet
     for product in products:
-        ws.append([product.name, product.amount, product.measurement_unit, product.income, product.body_price, product.date_added])
+        ws.append([product.name, str(product.amount) + " " +str(product.currency), product.deadline, product.payment_type, str(product.phone_number) + "\n" + str(product.extra_phone_number)])
 
     # Create a response with Excel content type
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     # Set the content-disposition header to force download the file
-    response['Content-Disposition'] = 'attachment; filename=products.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=kirim.xlsx'
 
     # Save the workbook content to the response
     wb.save(response)
@@ -45,15 +47,15 @@ def export_products_to_pdf(products):
     response = HttpResponse(content_type='application/pdf')
 
     # Set the content-disposition header to force download the file
-    response['Content-Disposition'] = 'attachment; filename=products.pdf'
+    response['Content-Disposition'] = 'attachment; filename=kirim.pdf'
 
     # Create a PDF document
     pdf = SimpleDocTemplate(response, pagesize=letter)
 
     # Define table data (products)
-    data = [["Nomi", "Miqdori", "O'lchov birligi", "Sof foyda", "Tan Narxi", "sanasi"]]
+    data = [["Ismi", "Summasi", "Muddati", "To'lov turi", "Telefon Raqamlari"]]
     for product in products:
-        data.append([product.name, product.amount, product.measurement_unit, product.income, product.body_price, product.date_added])
+        data.append([product.name, str(product.amount) + " " + str(product.currency), product.deadline, product.payment_type, str(product.phone_number) + "\n" + str(product.extra_phone_number)])
 
     # Create a table from the data
     table = Table(data)
@@ -74,95 +76,101 @@ def export_products_to_pdf(products):
 
     return response
 
+
 @method_decorator(login_required, name='dispatch')
-class StorageView(View):
-    template_name = "storage.html"
+class ExpancesView(View):
+    template_name = "expances.html"
     paginate_by = 10
     
     def get_context_data(self, *args, **kwargs):
         context = {}
-        context["products"] = Product.objects.all()
+        context["expances"] = Expances.objects.all()
         return context
     
     
     def get(self, request):
         context = self.get_context_data()
-         
-        # Pagination
-        paginator = Paginator(context["products"], self.paginate_by)
+        paginator = Paginator(context["expances"], self.paginate_by)
         page_number = request.GET.get('page')
         try:
-            products = paginator.page(page_number)
+            expances = paginator.page(page_number)
         except PageNotAnInteger:
-            products = paginator.page(1)
+            expances = paginator.page(1)
         except EmptyPage:
-            products = paginator.page(paginator.num_pages)
-    
-        context["products"] = products
+            expances = paginator.page(paginator.num_pages)
+        context['expances'] = expances
         return render(request, self.template_name, context)
     
-    
+
     def post(self, request):
         context = self.get_context_data()
+        
         if "filtr" in request.POST:
             start_date  = request.POST.get("from")
             end_date  = request.POST.get("till")
             if start_date and end_date:
-                context["products"] = Product.objects.filter(date_added__range=(start_date, end_date))
+                context["expances"] = Expances.objects.filter(deadline__range=(start_date, end_date))
             else:
                 pass
         
-        if "add_product" in request.POST:
-            product = Product.objects.create(
+        
+        if "add" in request.POST:
+            expance = Expances.objects.create(
                 name = request.POST.get("name"),
                 amount = request.POST.get("amount"),
-                measurement_unit = request.POST.get("measurment_unit"),
-                income = request.POST.get("income"),
-                body_price = request.POST.get("body_price")
+                currency = request.POST.get("currency"),
+                payment_type = request.POST.get("payment_type"),
+                deadline = request.POST.get("deadline"),
+                phone_number = request.POST.get("phone_number"),
+                extra_phone_number = request.POST.get("extra_phone_number")
             )
-        if "delete" in request.POST:
-            try:
-                product = Product.objects.get(id=request.POST.get("product"))
-                product.delete()
-            except Product.DoesNotExist:
-                return redirect("storage:storage")
-                
-            
+        
         if "action" in request.POST:
-            product = Product.objects.get(id=request.POST.get("product"))
+            product = Expances.objects.get(id=request.POST.get("product"))
             context["edit_product"] = product
-            return JsonResponse({'success': True, 'product': {
+            return JsonResponse({'success': True, 'expance': {
                     'id': product.id,
                     'name': product.name,
                     'amount': product.amount,
-                    'measurement_unit': product.measurement_unit,
-                    'income': product.income,
-                    'body_price': product.body_price
+                    'currency': product.currency,
+                    'payment_type': product.payment_type,
+                    'deadline': product.deadline,
+                    'phone_number': product.phone_number,
+                    'extra_phone_number': product.extra_phone_number,
                 }})
-            
+        if "delete" in request.POST:
+            try:
+                product = Expances.objects.get(id=request.POST.get("product"))
+                product.delete()
+            except Expances.DoesNotExist:
+                return redirect("expances_app:expances_view")
         # Editing
         if "save" in request.POST:
             product_id = request.POST.get("product")
             print(product_id)
-            product = get_object_or_404(Product, id=product_id)
+            product = get_object_or_404(Expances, id=product_id)
             product.name = request.POST.get("name")
             product.amount = request.POST.get("amount")
-            product.measurement_unit = request.POST.get("measurement_unit")
-            product.income = request.POST.get("income")
-            product.body_price = request.POST.get("body_price")
+            product.currency = request.POST.get("currency")
+            product.payment_type = request.POST.get("payment_type")
+            product.deadline = request.POST.get("deadline")
+            product.phone_number = request.POST.get("phone_number")
+            product.extra_phone_number = request.POST.get("extra_phone_number")
             product.save()
-
-        # Exporting
+            return redirect("expances_app:expances_view")
+         # Exporting
         if 'excel' in request.POST:
-            return export_products_to_excel(context["products"])
+            return export_products_to_excel(context["expances"])
         if "pdf" in request.POST:
-            return export_products_to_pdf(context["products"])
+            return export_products_to_pdf(context["expances"])
         
         if "search" in request.POST:
             try:
-                product = Product.objects.filter(name__icontains=request.POST.get("query"))
-                context["products"] = product
-            except Product.DoesNotExist:
-                return redirect("storage:storage")
+                product = Expances.objects.filter(name__icontains=request.POST.get("query"))
+                context["expances"] = product
+            except Expances.DoesNotExist:
+                return redirect("expances_app:expances_view")
             
         return render(request, self.template_name, context)
+    
+    

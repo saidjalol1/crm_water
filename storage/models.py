@@ -3,7 +3,6 @@ from django.db import models
 
 class Product(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nomi:")
-    slug = models.SlugField(unique=True)
     body_price = models.IntegerField(default=0, verbose_name="Tan Narxi")
     income = models.IntegerField(default=0, verbose_name="Sof Foydasi")
     amount = models.IntegerField(default=0, verbose_name="Miqdori")
