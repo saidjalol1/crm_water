@@ -15,19 +15,25 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item active">Mahsulotlar</li>
       </ol>
-      <div>
-        <form method="POST" class="d-felx " style="">
-          {% csrf_token %}
-          <input name="from" type="date" id="from" style="border-radius: 3px;margin-top:10px;outline:none;border:none;padding:10px 10px;">
-          <label for="from">Dan - Gacha</label>
-          <input name="till" type="date" id="from" style="border-radius: 3px;margin-top:10px;outline:none;border:none;padding:10px 10px;">
-          <button class="btn btn-primary" name="filtr" style="margin-left: 10px;">filtrlash</button>
-        </form>
-      </div>
     </nav>
+    <div class="d-felx justify-content-center align-items-center flex-column">
+      <form method="POST" class="d-flex gap-2 justify-content-center align-items-center flex-column flex-lg-row justify-content-lg-start">
+        {% csrf_token %}
+       <div class="from">
+        <input name="from" type="date" id="from" style="border-radius: 3px;margin-top:10px;outline:none;border:none;padding:10px 10px;">
+       </div>
+        <div for="from">Dan - Gacha</div>
+        <div class="till">
+          <input name="till" type="date" id="from" style="border-radius: 3px;margin-top:10px;outline:none;border:none;padding:10px 10px;">
+        </div>
+        <div class="button pt-2">
+          <button class="btn btn-primary" name="filtr" style="margin-left: 10px;">filtrlash</button>
+        </div>
+      </form>
+    </div>
   </div><!-- End Page Title -->
   <div class="d-flex justify-content-between align-items-center">
-    <div class="title"><h5 class="card-title">Mahsulotlar</h5></div>
+    <div></div>
     <div>
       <form method="POST">
         {% csrf_token %}
@@ -164,16 +170,17 @@
           </div>
           <div class="mb-3">
             <label for="formGroupExampleInput2" class="form-label">O'lchov birligi</label>
-            <input type="text" class="form-control" id="formGroupExampleInput2" placeholder="O'lchov birligi" name="measurment_unit" required>
-          </div>
-          <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">Sof foyda</label>
-            <input type="number" class="form-control" id="formGroupExampleInput2" placeholder="Sof foyda" name="income" required>
+            <input type="text" value="litr" class="form-control" id="formGroupExampleInput2" placeholder="O'lchov birligi" name="measurment_unit" required>
           </div>
           <div class="mb-3">
             <label for="formGroupExampleInput2" class="form-label">Tan narxi</label>
             <input type="number" class="form-control" id="formGroupExampleInput2" placeholder="Tan narxi" name="body_price" required>
           </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Sof foyda</label>
+            <input type="number" class="form-control" id="formGroupExampleInput2" placeholder="Sof foyda" name="income" required>
+          </div>
+         
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
             <button type="submit" class="btn btn-primary" name="add_product">Saqlash</button>

@@ -10,10 +10,10 @@
   }
 </style>
 <div class="pagetitle">
-    <h1>Sotuv</h1>
+    <h1>Qarzdorlar</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item active">To'lovlar</li>
+        <li class="breadcrumb-item active">Nasiya savdolar</li>
       </ol>
     </nav>
     <div class="d-felx justify-content-center align-items-center flex-column">
@@ -37,7 +37,6 @@
     <div>
       <form method="POST">
         {% csrf_token %}
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">To'lov qo'shish</button>
         <button type="submit" class="btn btn-warning" name="excel">.xlsx</button>
         <button type="submit" class="btn btn-info" name="pdf">.pdf</button>
       </form>
@@ -205,32 +204,20 @@
               <input type="text" class="form-control" id="name"  name="name" required>
             </div>
             <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Summasi:</label>
+              <label for="formGroupExampleInput2" class="form-label">Ayirish:</label>
               <input type="number" class="form-control" id="amount"  name="amount" required>
             </div>
             <div class="mb-3">
               <label for="formGroupExampleInput2" class="form-label">Valyuta:</label>
-              <input type="text" class="form-control" id="currency"  name="currency" required>
+              <select name="currency" id="payment_type" required class="form-select">
+                <option selected>----</option>
+                <option value="dollor">Dollor</option>
+                <option value="so'm">So'm</option>
+              </select>
             </div>
             <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Muddati:</label>
+              <label for="formGroupExampleInput2" class="form-label">Qaytarish Muddati:</label>
               <input type="date" class="form-control" id="deadline"  name="deadline" required>
-            </div>
-            <div class="mb-3">
-                <label for="formGroupExampleInput2" class="form-label">To'lov Turi:</label>
-                <select name="payment_type" id="payment_type" required class="form-select">
-                    <option selected>----</option>
-                    <option value="naqd">Naqd</option>
-                    <option value="nasiya">Nasiya</option>
-                </select>
-              </div>
-            <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Telefon Raqam 1</label>
-              <input type="number" class="form-control" id="phone_number"  name="phone_number" required>
-            </div>
-            <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Telefon Raqam 2</label>
-              <input type="number" class="form-control" id="extra_phone_number"  name="extra_phone_number" required>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>

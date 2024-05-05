@@ -49,7 +49,7 @@
 
     <div class="d-flex align-items-center justify-content-between">
       <a href="index.html" class="logo d-flex align-items-center">
-        <img src="{% static 'assets/img/logo.png' %}" alt="">
+        <img class="d-none d-lg-block" src="{% static 'assets/img/logo.png' %}" alt="">
         <span class="d-none d-lg-block">ZamZam</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -279,9 +279,27 @@
         </a>
       </li>
       <li class="nav-item">
+        <a class="nav-link " href="{% url 'expances_app:debts_view' %}">
+          <i class="bi bi-calendar-minus"></i>
+          <span>Qarzdorlik</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link " href="{% url 'expances_app:expances_view' %}">
           <i class="bi bi-cash-coin"></i>
           <span>Sotuv bo'limi</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link " href="#">
+          <i class="bi bi-server"></i>
+          <span>Ishlab chiqarish</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link " href="#">
+          <i class="bi bi-cash-coin"></i>
+          <span>Chiqim</span>
         </a>
       </li>
       <!-- End Dashboard Nav -->

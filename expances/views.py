@@ -174,3 +174,89 @@ class ExpancesView(View):
         return render(request, self.template_name, context)
     
     
+@method_decorator(login_required, name='dispatch')
+class DebtsView(View):
+    template_name = "debts.html"
+    paginate_by = 10
+    
+    def get_context_data(self, *args, **kwargs):
+        context = {}
+        context["expances"] = Expances.objects.filter(payment_type='nasiya').filter(amount__gt=0)
+        return context
+    
+    
+    def get(self, request):
+        context = self.get_context_data()
+        paginator = Paginator(context["expances"], self.paginate_by)
+        page_number = request.GET.get('page')
+        try:
+            expances = paginator.page(page_number)
+        except PageNotAnInteger:
+            expances = paginator.page(1)
+        except EmptyPage:
+            expances = paginator.page(paginator.num_pages)
+        context['expances'] = expances
+        return render(request, self.template_name, context)
+    
+
+    def post(self, request):
+        context = self.get_context_data()
+        
+        if "filtr" in request.POST:
+            start_date  = request.POST.get("from")
+            end_date  = request.POST.get("till")
+            if start_date and end_date:
+                context["expances"] = Expances.objects.filter(deadline__range=(start_date, end_date))
+            else:
+                pass
+            
+        
+        if "action" in request.POST:
+            product = Expances.objects.get(id=request.POST.get("product"))
+            context["edit_product"] = product
+            return JsonResponse({'success': True, 'expance': {
+                    'id': product.id,
+                    'name': product.name,
+                    'amount': product.amount,
+                    'currency': product.currency,
+                    'payment_type': product.payment_type,
+                    'deadline': product.deadline,
+                    'phone_number': product.phone_number,
+                    'extra_phone_number': product.extra_phone_number,
+                }})
+            
+            
+        if "delete" in request.POST:
+            try:
+                product = Expances.objects.get(id=request.POST.get("product"))
+                product.delete()
+            except Expances.DoesNotExist:
+                return redirect("expances_app:expances_view")
+            
+            
+        # Editing
+        if "save" in request.POST:
+            product_id = request.POST.get("product")
+            print(product_id)
+            product = get_object_or_404(Expances, id=product_id)
+            product.name = request.POST.get("name")
+            product.amount -= int(request.POST.get("amount"))
+            product.currency = request.POST.get("currency")
+            product.deadline = request.POST.get("deadline")
+            product.save()
+            return redirect("expances_app:debts_view")
+         # Exporting
+         
+        if 'excel' in request.POST:
+            return export_products_to_excel(context["expances"])
+        if "pdf" in request.POST:
+            return export_products_to_pdf(context["expances"])
+        
+        if "search" in request.POST:
+            try:
+                product = Expances.objects.filter(name__icontains=request.POST.get("query"))
+                context["expances"] = product
+            except Expances.DoesNotExist:
+                return redirect("expances_app:expances_view")
+            
+        return render(request, self.template_name, context)
