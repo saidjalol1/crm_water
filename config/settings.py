@@ -33,7 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # My Apps
     'main.apps.MainConfig',
-    'storage.apps.StorageConfig',
+    'warehouse.apps.WarehouseConfig',
     'expances.apps.ExpancesConfig',
     
     'django.contrib.admin',
@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'warehouse.contextpro.storages',
             ],
         },
     },

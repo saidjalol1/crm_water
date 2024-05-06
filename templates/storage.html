@@ -1,5 +1,5 @@
 {% extends 'wrapper.html' %}
-{% block title %}Ombor{% endblock title %}
+{% block title %}{{ storage.name }}{% endblock title %}
 {% block content %}
 <style>
   table{
@@ -10,10 +10,10 @@
   }
 </style>
 <div class="pagetitle">
-    <h1>Ombor</h1>
+    <h1>{{ storage.name }}</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Mahsulotlar</li>
+        <li class="breadcrumb-item active">{{ storage.slug }}lar</li>
       </ol>
     </nav>
     <div class="d-felx justify-content-center align-items-center flex-column">
@@ -37,7 +37,7 @@
     <div>
       <form method="POST">
         {% csrf_token %}
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Mahsulot qo'shish</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Qo'shish</button>
         <button type="submit" class="btn btn-warning" name="excel">.xlsx</button>
         <button type="submit" class="btn btn-info" name="pdf">.pdf</button>
       </form>
@@ -59,8 +59,8 @@
                 </tr>
               </thead>
               <tbody>
-                {% if products %}
-                {% for i in products %}
+                {% if items %}
+                {% for i in items %}
                 <tr>
                   <th scope="row">{{ i.id }}</th>
                   <td>{{ i.name }}</td>
@@ -120,23 +120,23 @@
             </table>
             <nav>
               <ul class="pagination justify-content-center">
-                  {% if products.has_previous %}
+                  {% if items.has_previous %}
                       <li class="page-item">
-                          <a class="page-link" href="?page={{ products.previous_page_number }}">Oldingi</a>
+                          <a class="page-link" href="?page={{ items.previous_page_number }}">Oldingi</a>
                       </li>
                   {% else %}
                       <li class="page-item disabled">
                           <span class="page-link">Oldingi</span>
                       </li>
                   {% endif %}
-                  {% for num in products.paginator.page_range %}
-                      <li class="page-item {% if num == products.number %}active{% endif %}">
+                  {% for num in items.paginator.page_range %}
+                      <li class="page-item {% if num == items.number %}active{% endif %}">
                           <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                       </li>
                   {% endfor %}
-                  {% if products.has_next %}
+                  {% if items.has_next %}
                       <li class="page-item">
-                          <a class="page-link" href="?page={{ products.next_page_number }}">Keyingi</a>
+                          <a class="page-link" href="?page={{ items.next_page_number }}">Keyingi</a>
                       </li>
                   {% else %}
                       <li class="page-item disabled">
@@ -170,7 +170,11 @@
           </div>
           <div class="mb-3">
             <label for="formGroupExampleInput2" class="form-label">O'lchov birligi</label>
-            <input type="text" value="litr" class="form-control" id="formGroupExampleInput2" placeholder="O'lchov birligi" name="measurment_unit" required>
+            <select name="measurement_unit" required=True class="form-select" id="measurement_unit">
+                <option value="litr">Litr</option>
+                <option value="tonna">To'nna</option>
+                <option value="dona">Dona</option>
+            </select>
           </div>
           <div class="mb-3">
             <label for="formGroupExampleInput2" class="form-label">Tan narxi</label>
@@ -180,7 +184,10 @@
             <label for="formGroupExampleInput2" class="form-label">Sof foyda</label>
             <input type="number" class="form-control" id="formGroupExampleInput2" placeholder="Sof foyda" name="income" required>
           </div>
-         
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Limit</label>
+            <input type="number" class="form-control" id="formGroupExampleInput2" placeholder="Limiti" name="limit" id="limit" required>
+          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
             <button type="submit" class="btn btn-primary" name="add_product">Saqlash</button>
@@ -211,7 +218,11 @@
           </div>
           <div class="mb-3">
             <label for="formGroupExampleInput2" class="form-label">O'lchov birligi</label>
-            <input type="text" class="form-control"  placeholder="O'lchov birligi" name="measurement_unit"  required id="measurement_unit">
+            <select name="measurement_unit" required=True class="form-select" id="measurement_unit">
+                <option value="litr">Litr</option>
+                <option value="tonna">To'nna</option>
+                <option value="dona">Dona</option>
+            </select>
           </div>
           <div class="mb-3">
             <label for="formGroupExampleInput2" class="form-label">Sof foyda</label>
@@ -220,6 +231,10 @@
           <div class="mb-3">
             <label for="formGroupExampleInput2" class="form-label">Tan narxi</label>
             <input type="number" class="form-control"  placeholder="Tan narxi" name="body_price"  required id="body_price">
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">Limit</label>
+            <input type="number" class="form-control"  placeholder="Limit" name="limit" required id="limit" >
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
@@ -240,7 +255,7 @@
         var csrfToken = "{{ csrf_token }}";
         
         $.ajax({
-            url: '/ombor/', 
+            url: '/ombor/{{ storage.slug }}/', 
             type: 'POST',
             headers: {
               'X-CSRFToken': csrfToken 
@@ -250,17 +265,17 @@
                 'product': productId
             },
             success: function(response) {
-              console.log(response.product)
+              console.log(response.item)
                
                 if (response.success) {
-                   
-                    $('#product_id').val(response.product.id);
-                    $('#name').val(response.product.name);
-                    $('#amount').val(response.product.amount);
-                    $('#measurement_unit').val(response.product.measurement_unit);
-                    $('#income').val(response.product.income);
-                    $('#body_price').val(response.product.body_price);
-                   
+                    $('#product_id').val(response.item.id);
+                    $('#name').val(response.item.name);
+                    $('#amount').val(response.item.amount);
+                    $('#measurement_unit').val(response.item.measurement_unit);
+                    $('#income').val(response.item.income);
+                    $('#body_price').val(response.item.body_price);
+                    $('#limit').val(response.item.max_amount);
+
                     $('#product-modal').modal('show');
                    
                 } else {

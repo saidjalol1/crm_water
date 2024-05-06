@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.views import View
-from .models import Product
+from .models import Product, Storage
 
 # Decorators
 from django.contrib import messages
@@ -80,35 +80,38 @@ class StorageView(View):
     paginate_by = 10
     
     def get_context_data(self, *args, **kwargs):
-        context = {}
-        context["products"] = Product.objects.all()
+        storage = Storage.objects.get(slug = self.kwargs.get("slug"))
+        context = {
+            "storage": storage,
+            "items" : storage.items.all()
+        }
         return context
     
     
-    def get(self, request):
+    def get(self, request, *args , **kwargs):
         context = self.get_context_data()
          
         # Pagination
-        paginator = Paginator(context["products"], self.paginate_by)
+        paginator = Paginator(context["items"], self.paginate_by)
         page_number = request.GET.get('page')
         try:
-            products = paginator.page(page_number)
+            items = paginator.page(page_number)
         except PageNotAnInteger:
-            products = paginator.page(1)
+            items = paginator.page(1)
         except EmptyPage:
-            products = paginator.page(paginator.num_pages)
+            items = paginator.page(paginator.num_pages)
     
-        context["products"] = products
+        context["items"] = items
         return render(request, self.template_name, context)
     
     
-    def post(self, request):
+    def post(self, request, *args , **kwargs):
         context = self.get_context_data()
         if "filtr" in request.POST:
             start_date  = request.POST.get("from")
             end_date  = request.POST.get("till")
             if start_date and end_date:
-                context["products"] = Product.objects.filter(date_added__range=(start_date, end_date))
+                context["items"] = context["storage"].items.filter(date_added__range=(start_date, end_date))
             else:
                 pass
         
@@ -116,9 +119,11 @@ class StorageView(View):
             product = Product.objects.create(
                 name = request.POST.get("name"),
                 amount = request.POST.get("amount"),
-                measurement_unit = request.POST.get("measurment_unit"),
+                measurement_unit = request.POST.get("measurement_unit"),
                 income = request.POST.get("income"),
-                body_price = request.POST.get("body_price")
+                body_price = request.POST.get("body_price"),
+                max_amount = request.POST.get("limit"),
+                storage = context["storage"],
             )
         if "delete" in request.POST:
             try:
@@ -131,13 +136,14 @@ class StorageView(View):
         if "action" in request.POST:
             product = Product.objects.get(id=request.POST.get("product"))
             context["edit_product"] = product
-            return JsonResponse({'success': True, 'product': {
+            return JsonResponse({'success': True, 'item': {
                     'id': product.id,
                     'name': product.name,
                     'amount': product.amount,
                     'measurement_unit': product.measurement_unit,
                     'income': product.income,
-                    'body_price': product.body_price
+                    'body_price': product.body_price,
+                    'max_amount': product.max_amount
                 }})
             
         # Editing
@@ -150,19 +156,20 @@ class StorageView(View):
             product.measurement_unit = request.POST.get("measurement_unit")
             product.income = request.POST.get("income")
             product.body_price = request.POST.get("body_price")
+            product.max_amount = request.POST.get("limit")
             product.save()
 
         # Exporting
         if 'excel' in request.POST:
-            return export_products_to_excel(context["products"])
+            return export_products_to_excel(context["items"])
         if "pdf" in request.POST:
-            return export_products_to_pdf(context["products"])
+            return export_products_to_pdf(context["items"])
         
         if "search" in request.POST:
             try:
                 product = Product.objects.filter(name__icontains=request.POST.get("query"))
-                context["products"] = product
+                context["items"] = product
             except Product.DoesNotExist:
-                return redirect("storage:storage")
+                return redirect("storage:storage", slug="your-slug-value")
             
         return render(request, self.template_name, context)

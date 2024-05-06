@@ -4,5 +4,5 @@ from .views import StorageView
 app_name = "storage"
 
 urlpatterns = [
-    path("", StorageView.as_view(), name="storage")
+    path("<str:slug>/", StorageView.as_view(), name="storage")
 ]
