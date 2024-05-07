@@ -63,8 +63,8 @@
                   <th scope="col">Jami summasi</th>
                   <th scope="col">Jami foyda</th>
                   <th scope="col">
-                    Qo'shilgan sana<br>
-                    (nasiya bo'lsa muddati )
+                    Sanasi<br>
+                    <span style="font-size: 12px;">(nasiya bo'lsa muddati)</span>
                   </th>
                   <th scope="col">Action</th>
                 </tr>
@@ -170,7 +170,7 @@
           </div>
           <div class="mb-3">
             <label for="formGroupExampleInput2" class="form-label">To'lov turi:</label>
-            <select name="payment" required class="form-select">
+            <select name="payment_type" required class="form-select">
                 <option selected>----</option>
                 <option value="nasiya">Nasiya</option>
                 <option value="naqd">Naqd</option>
@@ -195,7 +195,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Chiqimni tahrirlash</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Sotuvni tahrirlash</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -221,10 +221,10 @@
               <div class="mb-3">
                 <label for="formGroupExampleInput2" class="form-label">To'lov turi:</label>
                 <select name="payment_type" id="payment_type"  required class="form-select">
-                    <option value="selected">----</option>
-                    <option value="Naqd">Naqd</option>
-                    <option value="plastik">plastik</option>
-                    <option value="pechisleniya">pechisleniya</option>
+                  <option value="nasiya">Nasiya</option>
+                  <option value="naqd">Naqd</option>
+                  <option value="plastik">plastik</option>
+                  <option value="pechisleniya">pechisleniya</option>
                 </select>
               </div>
               <div class="mb-3">

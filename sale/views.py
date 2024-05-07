@@ -4,8 +4,12 @@ from django.contrib import messages
 from django.views import View
 from warehouse.models import Storage, Product
 from .models import Sale
+from .print_functions import export_products_to_excel, export_products_to_pdf
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 
+@method_decorator(login_required, name='dispatch')
 class SaleView(View):
     template_name = "sale.html"
     
@@ -25,7 +29,7 @@ class SaleView(View):
             start_date  = request.POST.get("from")
             end_date  = request.POST.get("till")
             if start_date and end_date:
-                context["expance"] = Sale.objects.filter(date_added__range=(start_date, end_date))
+                context["sale"] = Sale.objects.filter(date_added__range=(start_date, end_date))
             else:
                 pass
             
@@ -49,7 +53,7 @@ class SaleView(View):
         if "search" in request.POST:
             try:
                 sale = Sale.objects.filter(name__icontains=request.POST.get("query"))
-                context["objects"] = sale
+                context["sale"] = sale
             except Sale.DoesNotExist:
                 return redirect("sale:sale_view")
             
@@ -81,7 +85,11 @@ class SaleView(View):
             sale.payment_type = request.POST.get("payment_type")
             sale.deadline = request.POST.get("deadline")
             sale.save()
-            
-        context = self.get_context_data()
+        
+        if 'excel' in request.POST:
+            return export_products_to_excel(context["sale"])
+        if "pdf" in request.POST:
+            return export_products_to_pdf(context["sale"])
+        
         return render(request, self.template_name, context)
     

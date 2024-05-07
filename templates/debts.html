@@ -1,5 +1,5 @@
 {% extends 'wrapper.html' %}
-{% block title %}Kirim{% endblock title %}
+{% block title %}Qarzdorlar{% endblock title %}
 {% block content %}
 <style>
   table{
@@ -13,7 +13,7 @@
     <h1>Qarzdorlar</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Nasiya savdolar</li>
+        <li class="breadcrumb-item active"> va Nasiyalar</li>
       </ol>
     </nav>
     <div class="d-felx justify-content-center align-items-center flex-column">
@@ -37,12 +37,19 @@
     <div>
       <form method="POST">
         {% csrf_token %}
+        <!-- <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Qo'shish</button> -->
         <button type="submit" class="btn btn-warning" name="excel">.xlsx</button>
         <button type="submit" class="btn btn-info" name="pdf">.pdf</button>
       </form>
     </div>
   </div>
-  
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
     <div class="row" style="overflow-x: auto;"> 
            
             <table class="table" >
@@ -50,32 +57,42 @@
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Ismi</th>
-                  <th scope="col">Summasi</th>
-                  <th scope="col">sanasi</th>
+                  <th scope="col">Mahsulot nomi</th>
+                  <th scope="col">Mahsulot miqdori</th>
                   <th scope="col">To'lov turi</th>
-                  <th scope="col">Telefon Raqamlari</th>
+                  <th scope="col">Holati</th>
+                  <th scope="col">Jami summasi</th>
+                  <th scope="col">Jami foyda</th>
+                  <th scope="col">
+                    Muddati
+                  </th>
                   <th scope="col">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {% if expances %}
-                {% for i in expances %}
+                {% if debts %}
+                {% for i in debts %}
                 <tr>
                   <th scope="row">{{ i.id }}</th>
                   <td>{{ i.name }}</td>
-                  <td>{{ i.amount }} {{ i.currency }}</td>
-                  <td>{{ i.deadline }}</td>
+                  <td>{{ i.product_name }} </td>
+                  <td>{{ i.product_amount }}</td>
                   <td>{{ i.payment_type }}</td>
-                  <td>{{ i.phone_number }}<br>{{ i.extra_phone_number }}</td>
+                  {% if i.status %}
+                    <td>To'landi</td>
+                  {% else %}
+                    <td>To'lanmadi</td>
+                  {% endif %}
+                  <td>{{ i.get_overall }}so'm</td>
+                  <td>{{ i.get_income }}so'm</td>
+                  <td>{{ i.deadline }}</td>
                   <td>
-                    <div>
-                      <form method="POST" class="d-flex justify-content-start align-items-center gap-3">
-                        {% csrf_token %}
-                        <input type="hidden" name="product" value="{{ i.id }}">
-                        <button type="button" class="btn btn-success edit-btn" data-id="{{ i.id }}" data-bs-toggle="modal"  data-bs-target="#editProduct"> <i class="bi bi-pen"></i></button>
-                        <button type="button" class="btn btn-danger" data-id="{{ i.id }}" data-bs-toggle="modal"  data-bs-target="#DeleteModal"><i class="bi bi-trash"></i></button>
-                      </form>
-                    </div>
+                    <form method="POST" class="d-flex justify-content-start align-items-center gap-3">
+                      {% csrf_token %}
+                      <input type="hidden" name="debts" value="{{ i.id }}">
+                      <button type="button" class="btn btn-success edit-btn" data-id="{{ i.id }}" data-bs-toggle="modal"  data-bs-target="#editExpance"> <i class="bi bi-pen"></i></button>
+                      <button type="button" class="btn btn-danger" data-id="{{ i.id }}" data-bs-toggle="modal"  data-bs-target="#DeleteModal"><i class="bi bi-trash"></i></button>
+                    </form>
                   </td>
                 </tr>
                 <div class="modal fade" id="DeleteModal" tabindex="-1" aria-labelledby="editProductModal" aria-hidden="true">
@@ -88,7 +105,7 @@
                         <div class="modal-body">
                           <form method="POST">
                               {% csrf_token %}
-                              <input type="hidden" name="product" value="{{ i.id }}">
+                              <input type="hidden" name="debts" value="{{ i.id }}">
                                 <div style="color: gray;text-align:center;font-size: 20px;">Haqiqattan Ham O'chirishni Xoylaysimi ?</div>
                                 <div style="text-align: center; margin-top:10px;"><button class="btn btn-primary" type="submit" name="delete">Tasdiqlash</button></div>
                           </form>
@@ -105,23 +122,22 @@
                 </tr>
                 {% endif %}
               </tbody>
-             
             </table>
             <nav>
               <ul class="pagination justify-content-center">
-                  {% if expances.has_previous %}
+                  {% if debts.has_previous %}
                       <li class="page-item">
-                          <a class="page-link" href="?page={{ expances.previous_page_number }}">Oldingi</a>
+                          <a class="page-link" href="?page={{ debts.previous_page_number }}">Oldingi</a>
                       </li>
                   {% endif %}
-                  {% for num in expances.paginator.page_range %}
-                      <li class="page-item {% if num == expances.number %}active{% endif %}">
+                  {% for num in debts.paginator.page_range %}
+                      <li class="page-item {% if num == debts.number %}active{% endif %}">
                           <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                       </li>
                   {% endfor %}
-                  {% if expances.has_next %}
+                  {% if debts.has_next %}
                       <li class="page-item">
-                          <a class="page-link" href="?page={{ expances.next_page_number }}">Keyingi</a>
+                          <a class="page-link" href="?page={{ debts.next_page_number }}">Keyingi</a>
                       </li>
                   {% endif %}
               </ul>
@@ -135,7 +151,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">To'lov Qo'shish</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Sotuv Qo'shish</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -146,38 +162,30 @@
             <input type="text" class="form-control" id="formGroupExampleInput"  name="name" required>
           </div>
           <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">Summasi:</label>
-            <input type="number" class="form-control" id="formGroupExampleInput2"  name="amount" required>
-          </div>
-          <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">Valyuta:</label>
-            <select name="currency" id="payment_type" required class="form-select">
-                <option selected>----</option>
-                <option value="dollor">Dollor</option>
-                <option value="so'm">So'm</option>
+            <label for="formGroupExampleInput2" class="form-label">Mahsulot:</label>
+            <select name="product" class="form-select" required>
+                {% for i in products %}
+                <option value="{{ i.id }}">{{ i.name }}</option>
+                {% endfor %}
             </select>
           </div>
           <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">Muddati:</label>
-            <input type="date" class="form-control" id="formGroupExampleInput2"  name="deadline" required>
+            <label for="formGroupExampleInput" class="form-label">Mahsulot soni:</label>
+            <input type="id" class="form-control" id="formGroupExampleInput"  name="amount" required>
           </div>
           <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">To'lov Turi:</label>
-            <select name="payment_type" id="payment_type" required class="form-select">
+            <label for="formGroupExampleInput2" class="form-label">To'lov turi:</label>
+            <select name="payment" required class="form-select">
                 <option selected>----</option>
                 <option value="nasiya">Nasiya</option>
                 <option value="naqd">Naqd</option>
-                <option value="nasiya">Click</option>
-                <option value="nasiya">Payme</option>
+                <option value="plastik">plastik</option>
+                <option value="plastik">pechisleniya</option>
             </select>
           </div>
           <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">Telefon Raqam 1</label>
-            <input type="number" class="form-control" id="formGroupExampleInput2"  name="phone_number" required>
-          </div>
-          <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">Telefon Raqam 2</label>
-            <input type="number" class="form-control" id="formGroupExampleInput2"  name="extra_phone_number" required>
+            <label for="formGroupExampleInput" class="form-label">Nasiya Bo'lsa muddati:</label>
+            <input type="date" class="form-control" id="formGroupExampleInput"  name="deadline">
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
@@ -188,37 +196,44 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="editProduct" tabindex="-1" aria-labelledby="editProductModal" aria-hidden="true">
+<div class="modal fade" id="editExpance" tabindex="-1" aria-labelledby="editProductModal" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Mahsulot Qo'shish</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Sotuvni tahrirlash</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form method="POST">
             {% csrf_token %}
-            <input type="hidden" value="product_id" name="product" id="product_id">
+            <input type="hidden" value="debts_id" name="debts" id="debts_id">
             <div class="mb-3">
-              <label for="formGroupExampleInput" class="form-label">Ismi:</label>
-              <input type="text" class="form-control" id="name"  name="name" required>
-            </div>
-            <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Ayirish:</label>
-              <input type="number" class="form-control" id="amount"  name="amount" required>
-            </div>
-            <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Valyuta:</label>
-              <select name="currency" id="payment_type" required class="form-select">
-                <option selected>----</option>
-                <option value="dollor">Dollor</option>
-                <option value="so'm">So'm</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Qaytarish Muddati:</label>
-              <input type="date" class="form-control" id="deadline"  name="deadline" required>
-            </div>
+                <label for="formGroupExampleInput" class="form-label">Ismi:</label>
+                <input type="text" class="form-control" id="name"  name="name" required>
+              </div>
+              <div class="mb-3">
+                <label for="formGroupExampleInput2" class="form-label">Mahsulot:</label>
+                <select name="product" class="form-select" id="product" required>
+                    {% for i in products %}
+                    <option value="{{ i.id }}">{{ i.name }}</option>
+                    {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="formGroupExampleInput" class="form-label">Mahsulot soni:</label>
+                <input type="id" class="form-control" id="amount"  name="amount" required>
+              </div>
+              <div class="mb-3">
+                <label for="formGroupExampleInput2" class="form-label">Holati:</label>
+                <select name="status" id="status"  required class="form-select">
+                    <option value="True">To'landi</option>
+                    <option value="False">To'lanmadi</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="formGroupExampleInput" class="form-label">Nasiya Bo'lsa muddati:</label>
+                <input type="date" class="form-control" id="deadline"  name="deadline">
+              </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
               <button type="submit" class="btn btn-primary" name="save">Saqlash</button>
@@ -234,32 +249,30 @@
   $(document).ready(function() {
     $(".edit-btn").click(function() {
 
-        var productId = $(this).data("id");
+        var debtsId = $(this).data("id");
         var csrfToken = "{{ csrf_token }}";
         
         $.ajax({
-            url: '/expances/', 
+            url: '/qarzlar/', 
             type: 'POST',
             headers: {
               'X-CSRFToken': csrfToken 
             },
             data: {
-                'action': 'edit',
-                'product': productId
+                'action_edit': 'edit',
+                'debts': debtsId
             },
             success: function(response) {
-              console.log(response.product)
+              console.log(response.debts)
                
                 if (response.success) {
                    
-                    $('#product_id').val(response.expance.id);
-                    $('#name').val(response.expance.name);
-                    $('#amount').val(response.expance.amount);
-                    $('#currency').val(response.expance.currency);
-                    $('#payment_type').val(response.expance.payment_type);
-                    $('#deadline').val(response.expance.deadline);
-                    $('#phone_number').val(response.expance.phone_number);
-                    $('#extra_phone_number').val(response.expance.extra_phone_number);
+                    $('#debts_id').val(response.debts.id);
+                    $('#name').val(response.debts.name);
+                    $('#product').val(response.debts.product_name);
+                    $('#amount').val(response.debts.product_amount);
+                    $('#status').val(response.debts.status);
+                    $('#deadline').val(response.debts.deadline);
                    
                     $('#product-modal').modal('show');
                    

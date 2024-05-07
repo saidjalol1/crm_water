@@ -2,6 +2,7 @@
 {% load static %}
 {% block title %}Statistika{% endblock title %}
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="pagetitle">
   <h1>Statistika</h1>
   <nav>
@@ -14,6 +15,12 @@
 
 <section class="section dashboard">
   <div class="row">
+     <!-- Canvas element for the chart -->
+     <h3>Sotuv Diagramma</h3>
+     <div class="col-lg-12 p-2" id="salesChartContainer">
+         <canvas id="salesChart"></canvas>
+     </div>
+    <!-- Your JavaScript code here --><!-- End Left side columns -->
     <div class="col-lg-12">
       <div class="row">
         <!-- Sales Card -->
@@ -116,7 +123,7 @@
             <tr data-id="{{ i.id }}"  data-amount="{{ i.amount }}{{ i.currency }}" data-deadline="{{ i.deadline|date:'U' }}">
               <th scope="row">{{ i.id }}</th>
               <td data-name="{{ i.name }}">{{ i.name }}</td>
-              <td>{{ i.amount }}{{ i.currency }}</td>
+              <td>{{ i.get_overall }} so'm</td>
               <td>{{ i.deadline }}</td>
               <div class="debt-sale-info" data-deadline="{{ i.deadline|date:'U' }}"></div>
             </tr>
@@ -132,9 +139,10 @@
         </table>
        
 </div>
-    </div><!-- End Left side columns -->
+    </div>
   </div>
 </section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
   // Function to calculate remaining time in hours between two timestamps
   function calculateRemainingTime(deadlineTimestamp) {
@@ -162,5 +170,68 @@
 
   // Schedule the function to run periodically (every 5 minutes in this example)
   setInterval(checkRemainingTime, 1000 * 60 * 5); // Run every 5 minutes
+
+  function updateSalesChart() {
+    $.ajax({
+        url: '/statistika/',  // Replace '/statistika/' with your actual API endpoint
+        type: 'GET',
+        data: {
+          'action_edit': 'edit',
+        },
+        success: function(data) {
+            // Extract month labels and total sales values
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+            console.log(data)
+            // Get the existing Chart instance if it exists
+            const existingChart = Chart.getChart('salesChart');
+
+            // If the chart already exists, update its data; otherwise, create a new chart
+            if (existingChart) {
+                existingChart.data.labels = labels;
+                existingChart.data.datasets[0].data = values;
+                existingChart.update();
+            } else {
+                // Create a new Chart instance
+                const ctx = document.getElementById('salesChart').getContext('2d');
+                const salesChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Savdo Oyma-oy',
+                            data: values,  // Change border color for line chart
+                            fill: false,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                      scales: {
+                          x: {
+                              ticks: {
+                                  autoSkip: true,  // Enable automatic skipping of labels
+                                  maxTicksLimit: 5  // Maximum number of ticks to display
+                              }
+                          },
+                          y: {
+                            beginAtZero: true
+                          }
+                      }
+                  }
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching data:', error);
+            // Handle the error gracefully (e.g., display an error message)
+        }
+    });
+}
+
+// Call the updateSalesChart function initially
+updateSalesChart();
+
+// Refresh the chart data every X milliseconds (e.g., every 5 seconds)
+setInterval(updateSalesChart, 5000);  // Adjust the interval as needed
 </script>
 {% endblock content %}

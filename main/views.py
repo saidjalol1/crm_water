@@ -1,15 +1,21 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from .models import Expance
 from django.views import View
-from django.contrib.auth import login, logout, authenticate
+from django.http import JsonResponse
+
 from django.contrib import messages
-from .print_functions import export_products_to_excel,export_products_to_pdf
-# Decorators
-from django.contrib.auth.decorators import login_required
+from .print_functions import export_products_to_excel,export_products_to_pdf, export_products_to_excel_debts, export_products_to_pdf_debts
+
+
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+from .models import Expance
+from sale.models import Sale, Product
+from django.contrib.auth.models import User
+
+
 
 @method_decorator(login_required, name='dispatch')
 class MainView(View):
@@ -17,14 +23,25 @@ class MainView(View):
     
     def get_context_data(self, *args, **kwargs):
         context = {}
-        context["debt_sales"] = Expance.objects.filter(currency="nasiya")
+        context["debt_sales"] = Sale.objects.filter(payment_type='nasiya')
         return context
     
     
     def get(self, request):
         context = self.get_context_data()
-        print(context)
-        return render(request, self.template_name, context)
+        sales = Sale.objects.all()
+        sales_data = {}
+        for sale in sales:
+            month = sale.date_added.strftime("%B")  
+            if month in sales_data:
+                sales_data[month] += sale.get_overall()  
+            else:
+                sales_data[month] = sale.get_overall()
+        if "action_edit" in request.GET:
+            print(request, sales_data)
+            return JsonResponse(sales_data)
+        else:
+            return render(request, self.template_name, context)
     
     
     def post(self, request):
@@ -115,6 +132,96 @@ class ExpanceView(View):
                 context["expance"] = expance
             except Expance.DoesNotExist:
                 return redirect("main_app:expance")
+            
+        return render(request, self.template_name, context)
+    
+    
+@method_decorator(login_required, name='dispatch')
+class DebtsView(View):
+    template_name = "debts.html"
+    paginate_by = 10
+    
+    def get_context_data(self, *args, **kwargs):
+        context = {}
+        context["products"] = Product.objects.all()
+        context["debts"] = Sale.objects.filter(payment_type='nasiya')
+        return context
+    
+    
+    def get(self, request):
+        context = self.get_context_data()
+        paginator = Paginator(context["debts"], self.paginate_by)
+        page_number = request.GET.get('page')
+        try:
+            debts = paginator.page(page_number)
+        except PageNotAnInteger:
+            debts = paginator.page(1)
+        except EmptyPage:
+            debts = paginator.page(paginator.num_pages)
+        context['debts'] = debts
+        return render(request, self.template_name, context)
+    
+    
+    def post(self, request):
+        context = self.get_context_data()
+        
+        if "filtr" in request.POST:
+            start_date  = request.POST.get("from")
+            end_date  = request.POST.get("till")
+            if start_date and end_date:
+                context["debts"] = Sale.objects.filter(date_added__range=(start_date, end_date), payment_type='nasiya')
+            else:
+                pass
+            
+        
+        # if "add" in request.POST:
+        #     expance = Sale.objects.create(
+        #         name = request.POST.get("name"),
+        #         amount = request.POST.get("amount"),
+        #         currency = request.POST.get("currency")
+        #     )
+            
+            
+        if "search" in request.POST:
+            try:
+                debts = Sale.objects.filter(name__icontains=request.POST.get("query")).filter(payment_type='nasiya')
+                context["debts"] = debts
+            except Sale.DoesNotExist:
+                return redirect("main_app:debts")
+            
+        if "delete" in request.POST:
+            try:
+                debts = Sale.objects.get(id=request.POST.get("debts"))
+                debts.delete()
+            except Sale.DoesNotExist:
+                pass
+            
+        if "action_edit" in request.POST:
+            debts = Sale.objects.get(id=request.POST.get("debts"))
+            context["edit_debts"] = debts
+            return JsonResponse({'success': True, 'debts': {
+                    'id': debts.id,
+                    'name': debts.name,
+                    'product_name': debts.product_name.id,
+                    'product_amount': debts.product_amount,
+                    'status': debts.status,
+                    "deadline": debts.deadline
+                }})
+        
+        
+        if "save" in request.POST:
+            debts = Sale.objects.get(id = request.POST.get("debts"))
+            debts.name = request.POST.get("name")
+            debts.product_name = Product.objects.get(id=request.POST.get("product"))
+            debts.product_amount = request.POST.get("amount")
+            debts.status = request.POST.get("status")
+            debts.deadline = request.POST.get("deadline")
+            debts.save()
+        
+        if 'excel' in request.POST:
+            return export_products_to_excel_debts(context["debts"])
+        if "pdf" in request.POST:
+            return export_products_to_pdf_debts(context["debts"])
             
         return render(request, self.template_name, context)
     

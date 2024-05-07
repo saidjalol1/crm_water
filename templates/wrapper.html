@@ -48,7 +48,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="{% url 'main_app:main' %}" class="logo d-flex align-items-center">
         <img class="d-none d-lg-block" src="{% static 'assets/img/logo.png' %}" alt="">
         <span class="d-none d-lg-block">ZamZam</span>
       </a>
@@ -279,7 +279,7 @@
         </a>
       </li> {% endcomment %}
       <li class="nav-item">
-        <a class="nav-link " href="#">
+        <a class="nav-link " href="{% url 'main_app:debts' %}">
           <i class="bi bi-calendar-minus"></i>
           <span>Qarzdorlik</span>
         </a>

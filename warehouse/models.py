@@ -31,18 +31,13 @@ class Product(models.Model):
             return 0
     
     def overall_price(self):
-        total_amount = sum([ i.amount for i in Product.objects.all()])
-        if total_amount:
-            return total_amount * (self.body_price + self.income)
-        else:
-            return 0
+        return self.amount * (self.body_price + self.income)
         
     def overall_income(self):
-        total_amount = sum([ i.amount for i in Product.objects.all()])
-        if total_amount:
-            return total_amount * self.income
-        else:
-            return 0
+        return self.amount * self.income
+    
+    def self_price(self):
+        return self.body_price + self.income
     
     def __str__(self):
         return self.name

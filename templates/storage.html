@@ -54,6 +54,7 @@
                   <th scope="col">Qo'shilgan sana</th>
                   <th scope="col">Sof foydasi</th>
                   <th scope="col">Tan narxi</th>
+                  <th scope="col">Dona narxi</th>
                   <th scope="col">Jami summa</th>
                   <th scope="col">Jami Foyda</th>
                   <th scope="col">Ko'rsatgichi</th>
@@ -68,10 +69,11 @@
                   <td>{{ i.name }}</td>
                   <td>{{ i.amount }}{{ i.measurement_unit}}</td>
                   <td>{{ i.date_added }}</td>
-                  <td>{{ i.income }}so'm</td>
-                  <td>{{ i.body_price }}so'm</td>
-                  <td>{{ i.overall_price }}so'm</td>
-                  <td>{{ i.overall_income }}so'm</td>
+                  <td>{{ i.income }} so'm</td>
+                  <td>{{ i.body_price }} so'm</td>
+                  <td>{{ i.self_price }} so'm</td>
+                  <td>{{ i.overall_price }} so'm</td>
+                  <td>{{ i.overall_income }} so'm</td>
                   <td>
                     {% if i.calculate_percentage > 50 %}
                       <div class="progress d-flex justify-content-start align-items-center">
@@ -158,7 +160,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Mahsulot Qo'shish</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Qo'shish</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -205,7 +207,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Mahsulot Qo'shish</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Tahrirlash</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
