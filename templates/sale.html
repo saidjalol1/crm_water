@@ -1,5 +1,5 @@
 {% extends 'wrapper.html' %}
-{% block title %}Chiqim{% endblock title %}
+{% block title %}Sotuv{% endblock title %}
 {% block content %}
 <style>
   table{
@@ -10,10 +10,10 @@
   }
 </style>
 <div class="pagetitle">
-    <h1>Chiqim</h1>
+    <h1>Sotuv</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Chiqimlar</li>
+        <li class="breadcrumb-item active">Sotilganlar</li>
       </ol>
     </nav>
     <div class="d-felx justify-content-center align-items-center flex-column">
@@ -43,33 +43,48 @@
       </form>
     </div>
   </div>
-  
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
     <div class="row" style="overflow-x: auto;"> 
            
             <table class="table" >
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Nomi</th>
-                  <th scope="col">Summasi</th>
-                  <th scope="col">Valyuta</th>
-                  <th scope="col">sanasi</th>
+                  <th scope="col">Ismi</th>
+                  <th scope="col">Mahsulot nomi</th>
+                  <th scope="col">Mahsulot miqdori</th>
+                  <th scope="col">To'lov turi</th>
+                  <th scope="col">Jami summasi</th>
+                  <th scope="col">Jami foyda</th>
+                  <th scope="col">
+                    Qo'shilgan sana<br>
+                    (nasiya bo'lsa muddati )
+                  </th>
                   <th scope="col">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {% if expance %}
-                {% for i in expance %}
+                {% if sale %}
+                {% for i in sale %}
                 <tr>
                   <th scope="row">{{ i.id }}</th>
                   <td>{{ i.name }}</td>
-                  <td>{{ i.amount }} </td>
-                  <td>{{ i.currency }}</td>
-                  <td>{{ i.date_added }}</td>
+                  <td>{{ i.product_name }} </td>
+                  <td>{{ i.product_amount }}</td>
+                  <td>{{ i.payment_type }}</td>
+                  <td>{{ i.get_overall }}so'm</td>
+                  <td>{{ i.get_income }}so'm</td>
+                  <td>{{ i.deadline }}</td>
                   <td>
                     <form method="POST" class="d-flex justify-content-start align-items-center gap-3">
                       {% csrf_token %}
-                      <input type="hidden" name="expance" value="{{ i.id }}">
+                      <input type="hidden" name="sale" value="{{ i.id }}">
                       <button type="button" class="btn btn-success edit-btn" data-id="{{ i.id }}" data-bs-toggle="modal"  data-bs-target="#editExpance"> <i class="bi bi-pen"></i></button>
                       <button type="button" class="btn btn-danger" data-id="{{ i.id }}" data-bs-toggle="modal"  data-bs-target="#DeleteModal"><i class="bi bi-trash"></i></button>
                     </form>
@@ -85,7 +100,7 @@
                         <div class="modal-body">
                           <form method="POST">
                               {% csrf_token %}
-                              <input type="hidden" name="expance" value="{{ i.id }}">
+                              <input type="hidden" name="sale" value="{{ i.id }}">
                                 <div style="color: gray;text-align:center;font-size: 20px;">Haqiqattan Ham O'chirishni Xoylaysimi ?</div>
                                 <div style="text-align: center; margin-top:10px;"><button class="btn btn-primary" type="submit" name="delete">Tasdiqlash</button></div>
                           </form>
@@ -105,19 +120,19 @@
             </table>
             <nav>
               <ul class="pagination justify-content-center">
-                  {% if expance.has_previous %}
+                  {% if sale.has_previous %}
                       <li class="page-item">
-                          <a class="page-link" href="?page={{ expance.previous_page_number }}">Oldingi</a>
+                          <a class="page-link" href="?page={{ sale.previous_page_number }}">Oldingi</a>
                       </li>
                   {% endif %}
-                  {% for num in expance.paginator.page_range %}
-                      <li class="page-item {% if num == expance.number %}active{% endif %}">
+                  {% for num in sale.paginator.page_range %}
+                      <li class="page-item {% if num == sale.number %}active{% endif %}">
                           <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                       </li>
                   {% endfor %}
-                  {% if expance.has_next %}
+                  {% if sale.has_next %}
                       <li class="page-item">
-                          <a class="page-link" href="?page={{ expance.next_page_number }}">Keyingi</a>
+                          <a class="page-link" href="?page={{ sale.next_page_number }}">Keyingi</a>
                       </li>
                   {% endif %}
               </ul>
@@ -131,29 +146,41 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Chiqim Qo'shish</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Sotuv Qo'shish</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form method="POST">
           {% csrf_token %}
           <div class="mb-3">
-            <label for="formGroupExampleInput" class="form-label">Nomi:</label>
+            <label for="formGroupExampleInput" class="form-label">Ismi:</label>
             <input type="text" class="form-control" id="formGroupExampleInput"  name="name" required>
           </div>
           <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">Summasi:</label>
-            <input type="number" class="form-control" id="formGroupExampleInput2"  name="amount" required>
+            <label for="formGroupExampleInput2" class="form-label">Mahsulot:</label>
+            <select name="product" class="form-select" required>
+                {% for i in products %}
+                <option value="{{ i.id }}">{{ i.name }}</option>
+                {% endfor %}
+            </select>
           </div>
           <div class="mb-3">
-            <label for="formGroupExampleInput2" class="form-label">Valyuta:</label>
-            <select name="currency" id="payment_type" required class="form-select">
+            <label for="formGroupExampleInput" class="form-label">Mahsulot soni:</label>
+            <input type="id" class="form-control" id="formGroupExampleInput"  name="amount" required>
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput2" class="form-label">To'lov turi:</label>
+            <select name="payment" required class="form-select">
                 <option selected>----</option>
-                <option value="dollor">Dollor</option>
-                <option value="so'm">So'm</option>
-                <option value="rubl">Rubl</option>
-                <option value="yevro">Yevro</option>
+                <option value="nasiya">Nasiya</option>
+                <option value="naqd">Naqd</option>
+                <option value="plastik">plastik</option>
+                <option value="plastik">pechisleniya</option>
             </select>
+          </div>
+          <div class="mb-3">
+            <label for="formGroupExampleInput" class="form-label">Nasiya Bo'lsa muddati:</label>
+            <input type="date" class="form-control" id="formGroupExampleInput"  name="deadline">
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
@@ -174,25 +201,36 @@
       <div class="modal-body">
         <form method="POST">
             {% csrf_token %}
-            <input type="hidden" value="expance_id" name="expance" id="expance_id">
+            <input type="hidden" value="sale_id" name="sale" id="sale_id">
             <div class="mb-3">
-              <label for="formGroupExampleInput" class="form-label">Nomi:</label>
-              <input type="text" class="form-control" id="name"  name="name" required>
-            </div>
-            <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Summasi:</label>
-              <input type="number" class="form-control" id="amount"  name="amount" required>
-            </div>
-            <div class="mb-3">
-              <label for="formGroupExampleInput2" class="form-label">Valyuta:</label>
-              <select name="currency" id="currency" required class="form-select">
-                <option selected>----</option>
-                <option value="dollor">Dollor</option>
-                <option value="so'm">So'm</option>
-                <option value="rubl">Rubl</option>
-                <option value="yevro">Yevro</option>
-              </select>
-            </div>
+                <label for="formGroupExampleInput" class="form-label">Ismi:</label>
+                <input type="text" class="form-control" id="name"  name="name" required>
+              </div>
+              <div class="mb-3">
+                <label for="formGroupExampleInput2" class="form-label">Mahsulot:</label>
+                <select name="product" class="form-select" id="product" required>
+                    {% for i in products %}
+                    <option value="{{ i.id }}">{{ i.name }}</option>
+                    {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="formGroupExampleInput" class="form-label">Mahsulot soni:</label>
+                <input type="id" class="form-control" id="amount"  name="amount" required>
+              </div>
+              <div class="mb-3">
+                <label for="formGroupExampleInput2" class="form-label">To'lov turi:</label>
+                <select name="payment_type" id="payment_type"  required class="form-select">
+                    <option value="selected">----</option>
+                    <option value="Naqd">Naqd</option>
+                    <option value="plastik">plastik</option>
+                    <option value="pechisleniya">pechisleniya</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="formGroupExampleInput" class="form-label">Nasiya Bo'lsa muddati:</label>
+                <input type="date" class="form-control" id="deadline"  name="deadline">
+              </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
               <button type="submit" class="btn btn-primary" name="save">Saqlash</button>
@@ -208,28 +246,30 @@
   $(document).ready(function() {
     $(".edit-btn").click(function() {
 
-        var expanceId = $(this).data("id");
+        var saleId = $(this).data("id");
         var csrfToken = "{{ csrf_token }}";
         
         $.ajax({
-            url: '/chiqim/', 
+            url: '/sale/', 
             type: 'POST',
             headers: {
               'X-CSRFToken': csrfToken 
             },
             data: {
                 'action_edit': 'edit',
-                'expance': expanceId
+                'sale': saleId
             },
             success: function(response) {
-              console.log(response.expance)
+              console.log(response.sale)
                
                 if (response.success) {
                    
-                    $('#expance_id').val(response.expance.id);
-                    $('#name').val(response.expance.name);
-                    $('#amount').val(response.expance.amount);
-                    $('#currency').val(response.expance.currency);
+                    $('#sale_id').val(response.sale.id);
+                    $('#name').val(response.sale.name);
+                    $('#product').val(response.sale.product_name);
+                    $('#amount').val(response.sale.product_amount);
+                    $('#payment_type').val(response.sale.payment_type);
+                    $('#deadline').val(response.sale.deadline);
                    
                     $('#product-modal').modal('show');
                    

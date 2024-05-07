@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     # My Apps
     'main.apps.MainConfig',
     'warehouse.apps.WarehouseConfig',
-    'expances.apps.ExpancesConfig',
+    'sale.apps.SaleConfig',
     
     'django.contrib.admin',
     'django.contrib.auth',

@@ -279,25 +279,19 @@
         </a>
       </li> {% endcomment %}
       <li class="nav-item">
-        <a class="nav-link " href="{% url 'expances_app:debts_view' %}">
+        <a class="nav-link " href="#">
           <i class="bi bi-calendar-minus"></i>
           <span>Qarzdorlik</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link " href="{% url 'expances_app:expances_view' %}">
+        <a class="nav-link " href="{% url 'sale:sale_view' %}">
           <i class="bi bi-cash-coin"></i>
           <span>Sotuv bo'limi</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link " href="#">
-          <i class="bi bi-server"></i>
-          <span>Ishlab chiqarish</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link " href="#">
+        <a class="nav-link " href="{% url 'main_app:expance' %}">
           <i class="bi bi-cash-coin"></i>
           <span>Chiqim</span>
         </a>

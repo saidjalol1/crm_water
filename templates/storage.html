@@ -54,6 +54,8 @@
                   <th scope="col">Qo'shilgan sana</th>
                   <th scope="col">Sof foydasi</th>
                   <th scope="col">Tan narxi</th>
+                  <th scope="col">Jami summa</th>
+                  <th scope="col">Jami Foyda</th>
                   <th scope="col">Ko'rsatgichi</th>
                   <th scope="col">Qo'shimcha funksiyalar</th>
                 </tr>
@@ -66,8 +68,10 @@
                   <td>{{ i.name }}</td>
                   <td>{{ i.amount }}{{ i.measurement_unit}}</td>
                   <td>{{ i.date_added }}</td>
-                  <td>{{ i.income }}</td>
-                  <td>{{ i.body_price }}</td>
+                  <td>{{ i.income }}so'm</td>
+                  <td>{{ i.body_price }}so'm</td>
+                  <td>{{ i.overall_price }}so'm</td>
+                  <td>{{ i.overall_income }}so'm</td>
                   <td>
                     {% if i.calculate_percentage > 50 %}
                       <div class="progress d-flex justify-content-start align-items-center">

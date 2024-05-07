@@ -23,5 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("main.urls", namespace="main_app")),
     path("ombor/", include("warehouse.urls", namespace="storage")),
-    path("expances/", include("expances.urls", namespace="expances")),
+    path("sale/", include("sale.urls", namespace="sale")),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
