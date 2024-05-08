@@ -1,4 +1,5 @@
 import datetime
+from calendar import month_name
 from django.shortcuts import render, redirect
 from django.views import View
 from django.http import JsonResponse
@@ -27,8 +28,6 @@ class MainView(View):
         context = {}
         sale = Sale.objects.filter(payment_type='nasiya')
         sale_calculation = Sale.objects.filter(date_added__month = datetime.datetime.now().month)
-        # overall_sale_amount = sale.get_overall()
-        # overall_income = sale.get_income()
         
         most_sold_products_current_month = Sale.objects.filter(
                 date_added__month=current_month.month,
@@ -62,13 +61,33 @@ class MainView(View):
     def get(self, request):
         context = self.get_context_data()
         sales = Sale.objects.all()
-        sales_data = {}
+        
+        current_year = datetime.datetime.now().year
+        
+        uzbek_month_names = {
+            1: "Yanvar",
+            2: "Fevral",
+            3: "Mart",
+            4: "Aprel",
+            5: "May",
+            6: "Iyun",
+            7: "Iyul",
+            8: "Avgust",
+            9: "Sentabr",
+            10: "Oktabr",
+            11: "Noyabr",
+            12: "Dekabr"
+        }
+        sales_data = {month_name: 0 for month_name in uzbek_month_names.values()} 
+        
+        sales = Sale.objects.filter(date_added__year=current_year)
+        
         for sale in sales:
-            month = sale.date_added.strftime("%B")  
-            if month in sales_data:
-                sales_data[month] += sale.get_overall()  
-            else:
-                sales_data[month] = sale.get_overall()
+            month = sale.date_added.month  
+            month_name = uzbek_month_names.get(month)
+            if month_name:
+                sales_data[month_name] += sale.get_overall() 
+        
         if "action_edit" in request.GET:
             print(request, sales_data)
             return JsonResponse(sales_data)
