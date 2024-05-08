@@ -15,13 +15,15 @@
 
 <section class="section dashboard">
   <div class="row">
-     <!-- Canvas element for the chart -->
-     <h3>Sotuv Diagramma</h3>
-     <div class="col-lg-12 p-2" id="salesChartContainer">
-         <canvas id="salesChart"></canvas>
-     </div>
     <!-- Your JavaScript code here --><!-- End Left side columns -->
     <div class="col-lg-12">
+      <div class="row">
+          <div class="col-xxl-12 card">
+            <div id="salesChartContainer" height="200px">
+              <canvas id="salesChart" ></canvas>
+            </div>
+          </div>
+      </div>
       <div class="row">
         <!-- Sales Card -->
         <div class="col-xxl-4 col-md-6">
@@ -34,7 +36,7 @@
                   <i class="bi bi-cart"></i>
                 </div>
                 <div class="ps-3">
-                  <h6>145</h6>
+                  <h6>{{ overall_sale_current_month }} so'm</h6>
                 </div>
               </div>
             </div>
@@ -46,14 +48,14 @@
         <div class="col-xxl-4 col-md-6">
           <div class="card info-card revenue-card">
             <div class="card-body">
-              <h5 class="card-title">Foyda <span>| Bu yil</span></h5>
+              <h5 class="card-title">Foyda <span>| Bu oy</span></h5>
 
               <div class="d-flex align-items-center">
                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                   <i class="bi bi-currency-dollar"></i>
                 </div>
                 <div class="ps-3">
-                  <h6>$3,264</h6>
+                  <h6>{{ overall_income_current_month }} so'm</h6>
                 </div>
               </div>
             </div>
@@ -65,16 +67,14 @@
 
           <div class="card info-card customers-card">
             <div class="card-body">
-              <h5 class="card-title">Eng Ko'p sotilgan Mahsulot <span></span></h5>
+              <h5 class="card-title">Eng Ko'p sotilgan Mahsulot <span>| Shu oyda</span></h5>
 
               <div class="d-flex align-items-center">
                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-people"></i>
+                  <i class="bi bi-box-fill"></i>
                 </div>
                 <div class="ps-3">
-                  <h6>1244</h6>
-                  <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
-
+                  <h6>{{ most_sold_products_current_month.product_name__name }}</h6>
                 </div>
               </div>
 
@@ -94,9 +94,7 @@
                   <i class="bi bi-people"></i>
                 </div>
                 <div class="ps-3">
-                  <h6>1244</h6>
-                  <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
-
+                  <h6>{{ most_buy_client.name }}</h6>
                 </div>
               </div>
 
@@ -104,7 +102,6 @@
           </div>
 
         </div><!-- End Customers Card -->
-
       </div>
       <div class="row" style="overflow-x: auto;"> 
            <h3>Nasiya Savdolar</h3>
@@ -144,6 +141,7 @@
 </section>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+
   // Function to calculate remaining time in hours between two timestamps
   function calculateRemainingTime(deadlineTimestamp) {
     const currentTime = new Date().getTime();
@@ -169,11 +167,11 @@
   }
 
   // Schedule the function to run periodically (every 5 minutes in this example)
-  setInterval(checkRemainingTime, 1000 * 60 * 5); // Run every 5 minutes
+  setInterval(checkRemainingTime, 1000 * 60 * 10); // Run every 5 minutes
 
   function updateSalesChart() {
     $.ajax({
-        url: '/statistika/',  // Replace '/statistika/' with your actual API endpoint
+        url: '',  // Replace '/statistika/' with your actual API endpoint
         type: 'GET',
         data: {
           'action_edit': 'edit',

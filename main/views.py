@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import render, redirect
 from django.views import View
 from django.http import JsonResponse
@@ -14,8 +15,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Expance
 from sale.models import Sale, Product
 from django.contrib.auth.models import User
-
-
+from django.db.models import Sum, F
+from django.db.models.functions import TruncMonth
+current_month = datetime.datetime.now()
 
 @method_decorator(login_required, name='dispatch')
 class MainView(View):
@@ -23,7 +25,37 @@ class MainView(View):
     
     def get_context_data(self, *args, **kwargs):
         context = {}
-        context["debt_sales"] = Sale.objects.filter(payment_type='nasiya')
+        sale = Sale.objects.filter(payment_type='nasiya')
+        sale_calculation = Sale.objects.filter(date_added__month = datetime.datetime.now().month)
+        # overall_sale_amount = sale.get_overall()
+        # overall_income = sale.get_income()
+        
+        most_sold_products_current_month = Sale.objects.filter(
+                date_added__month=current_month.month,
+                date_added__year=current_month.year
+                ).annotate(
+                month=TruncMonth('date_added'),
+                        product_quantity=Sum('product_amount')
+                            ).values('product_name__name').order_by('-product_amount').first()
+        
+        most_buy_client = Sale.objects.filter(
+                date_added__month=current_month.month,
+                date_added__year=current_month.year
+                ).annotate(
+                month=TruncMonth('date_added'),
+                        product_quantity=Sum('product_amount')
+                            ).values('name').order_by('-product_amount').first()
+                
+        overall_sale_current_month = sum([i.get_overall() for i in sale_calculation])
+        overall_income_current_month = sum([i.get_income() for i in sale_calculation])
+        print(overall_sale_current_month)
+        context["debt_sales"] = sale
+        context["overall_sale_current_month"] = overall_sale_current_month
+        context["overall_income_current_month"] = overall_income_current_month
+        print(most_sold_products_current_month)
+        context["most_sold_products_current_month"] = most_sold_products_current_month
+        context["most_buy_client"] = most_buy_client
+        print(most_buy_client)
         return context
     
     
