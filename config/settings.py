@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-_j=pczsh)5=@s^au!w#apw3_o4+duark697^$^g6935un=ew3x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["crmwebadmin.pythonanywhere.com"]
 
 
 # Application definition
@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'warehouse.apps.WarehouseConfig',
     'sale.apps.SaleConfig',
-    
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'uz' 
+LANGUAGE_CODE = 'uz'
 
 TIME_ZONE = 'Asia/Tashkent'
 

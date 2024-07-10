@@ -38,7 +38,7 @@
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
   <style>
-   
+
   </style>
 </head>
 
@@ -50,7 +50,7 @@
     <div class="d-flex align-items-center justify-content-between">
       <a href="{% url 'main_app:main' %}" class="logo d-flex align-items-center">
         <img class="d-none d-lg-block" src="{% static 'assets/img/logo.png' %}" alt="">
-        <span class="d-none d-lg-block">ZamZam</span>
+        <span class="d-none d-lg-block"></span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->
@@ -311,7 +311,7 @@
                 <span>{{ i.name }}</span>
               </a>
             </li>
-          {% endfor %}  
+          {% endfor %}
           {% endif %}
         </ul>
       </li>
@@ -322,7 +322,7 @@
           <span>Yordam</span>
         </a>
       </li><!-- End F.A.Q Page Nav -->
-     
+
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'main_app:logout' %}">
@@ -337,10 +337,10 @@
   <main id="main" class="main">
         {% block content %} {% endblock content %}
 
-  
+
   </main><!-- End #main -->
 
-  
+
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
